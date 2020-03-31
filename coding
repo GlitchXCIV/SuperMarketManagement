@@ -1,0 +1,164 @@
+import UIKit
+
+print("🧀SuperMarket🍋\n")
+
+class Negoziante {
+    private var prodotti: [String:[String]] = [:]
+    private var partitaIVA: String
+    private var ragioneSociale : String
+    
+    var cpProdotti: [String:[String]] {
+        get {
+            return self.prodotti
+        }
+        set(dictProdotti) {
+            self.prodotti = dictProdotti
+        }
+    }
+    
+    var cpPartitaIVA : String {
+        get {
+            return self.partitaIVA
+        }
+        set(partIva) {
+            self.partitaIVA = partIva
+        }
+    }
+    var cpRagioneSociale : String {
+        get {
+            return self.ragioneSociale
+        }
+        set(ragSociale) {
+            self.ragioneSociale = ragSociale
+        }
+    }
+    
+    init(partitaIVA: String, ragioneSociale: String, prodotti:[String:[String]]) {
+        self.partitaIVA = partitaIVA
+        self.ragioneSociale = ragioneSociale
+        self.prodotti = prodotti
+    }
+    
+    func nuovoProdotto(categoria: String, nome: String)-> String {
+        for (key,_) in prodotti{
+            if key == categoria{
+                prodotti[categoria]?.append(nome)
+                return "\t\t▻ Hai aggiunto il prodotto '\(nome)' nel tuo store!"
+            }
+        }
+        return "\t\t▻ Categoria \(categoria) non presente del tuo store"
+    }
+    
+    func mostraCategorie() {
+        for (_,item) in prodotti.keys.enumerated() {
+            print("\t\t⚈ \(item)")
+        }
+    }
+    
+    func prodottiByCategoria(categoria: String)-> String {
+        for (key,value) in prodotti{
+            if key == categoria{
+                print("\t\t▻ Prodotti della categoria \(categoria) presenti nello store:")
+                print("\t\t\t \(value)")
+            }
+        }
+        return "\t▻ Categoria \(categoria) non presente del tuo store"
+    }
+    
+    func stampaProdotti() {
+        for (_,item) in prodotti.enumerated(){
+            print("\t\t⚈ \(item.key) -> \(item.value)")
+        }
+    }
+    
+    func vendiProdottiRimuovendolo(categoria: String, nome: String)-> Bool{
+        for (category, names) in self.prodotti {
+            for (index, item) in names.enumerated() {
+                if item == nome {
+                    self.prodotti[category]?.remove(at: index)
+                    return true
+                }
+            }
+        }
+        print("\t\t▻ Prodotto \(nome) non presente nello store")
+        return false
+    }
+    
+}
+
+class Cliente {
+    var carrello:[String] = []
+    var coding: String
+    var nominativo: String
+    
+    init(coding: String, nominativo: String) {
+        self.coding = coding
+        self.nominativo = nominativo
+    }
+    func richiestaListaProdotti(negoziante:Negoziante){
+        negoziante.stampaProdotti()
+    }
+    func richiestaListaCategorie(negoziante:Negoziante){
+        negoziante.mostraCategorie()
+    }
+    
+    func richiestaListaProdottiByCategoria(negoziante:Negoziante, categoria: String){
+        negoziante.prodottiByCategoria(categoria: categoria)
+    }
+    
+    func compraProdotto(negoziante:Negoziante, cat: String, name: String){
+        if (negoziante.vendiProdottiRimuovendolo(categoria: cat, nome: name))
+        {
+            print( "\t\t▻ Hai acquistato il prodotto \(name)")
+            self.carrello.append(name)
+        }
+    }
+    
+    func stampaCarrello()-> String {
+        if (!self.carrello.isEmpty) {
+            for(_,item) in self.carrello.enumerated() {
+                print( "\t\t⚈ \(item)")
+            }
+            return ""
+        }
+        return "\t\tCarrello Vuoto"
+    }
+}
+
+var Giusy:Negoziante = Negoziante.init(partitaIVA: "261194", ragioneSociale: "Giusy SuperMarket",
+                                       prodotti:
+    ["Alimentari" : ["Pasta penne lisce", "Salsa datterino", "Farina 00"],
+     "Igiene per la casa" : ["Detersivo per piatti", "Ammorbidente"],
+     "Igiene pesonale" : ["Bagnoschiuma", "Spazzolino", "Spugna"]
+])
+var Salvo:Cliente = Cliente.init(coding: "001", nominativo: "Salvo Di Caro")
+var Pippo:Cliente = Cliente.init(coding: "002", nominativo: "Pippo Pippi")
+print("🟡 Operazioni del negozionate")
+print("\t‣ Inserisci un nuovo prodotto del tuo store")
+print(Giusy.nuovoProdotto(categoria: "Alimentari", nome: "Fragole"))
+print(Giusy.nuovoProdotto(categoria: "Abbigliamento", nome: "Jeans"))
+print("\n\t‣ Mostra categorie presenti nello store")
+Giusy.mostraCategorie()
+print("\n\t‣ Mostra prodotti data una categoria")
+Giusy.prodottiByCategoria(categoria: "Alimentari")
+print("\n\t‣ Mostra tutti i prodotti dello store")
+Giusy.stampaProdotti()
+print("\n\t‣ Vendi prodotto (non stamperà nulla dato che il valore di ritorno è un Bool)")
+Giusy.vendiProdottiRimuovendolo(categoria: "Alimentari", nome: "Fragole")
+print("\n🟡 Operazioni del cliente")
+print("\n\t‣ Richiedi la lista di tutti i prodotti di uno store")
+Salvo.richiestaListaProdotti(negoziante: Giusy)
+print("\n\t‣ Richiedi la lista di tutte le categorie presenti in uno store")
+Salvo.richiestaListaCategorie(negoziante: Giusy)
+print("\n\t‣ Richiedi la lista di tutti i prodotti per categoria di uno store")
+Salvo.richiestaListaProdottiByCategoria(negoziante: Giusy, categoria: "Igiene per la casa")
+print("\n\t‣ Compra prodotto in uno store")
+Salvo.compraProdotto(negoziante: Giusy, cat: "Igiene per la casa", name: "Spugna")
+Salvo.compraProdotto(negoziante: Giusy, cat: "Alimentari", name: "Fragole")
+Salvo.compraProdotto(negoziante: Giusy, cat: "Igiene personale", name: "Spazzolino")
+print("\n\t‣ Stampa carello del cliente \(Salvo.nominativo)")
+print(Salvo.stampaCarrello())
+print("\t‣ Stampa carello del cliente \(Pippo.nominativo)")
+print(Pippo.stampaCarrello())
+print("\n🟢 Giacenza dello store\n")
+Giusy.stampaProdotti()
